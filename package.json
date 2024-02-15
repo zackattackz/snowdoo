@@ -1,0 +1,7 @@
+{
+  "name": "odoo_node_modules",
+  "version": "16.0.0",
+  "dependencies": {
+    "less": "^3.12.2"
+  }
+}
