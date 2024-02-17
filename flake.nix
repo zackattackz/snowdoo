@@ -25,32 +25,32 @@
         ];
     };
     pkgs = importPkgs nixpkgs;
-    odoo16_0 = (dream2nix.lib.evalModules {
+    v16_0 = (dream2nix.lib.evalModules {
       packageSets.nixpkgs = pkgs;
       packageSets.nixpkgs-python-ldap-3_4_0 = inputs.nixpkgs-python-ldap-3_4_0.legacyPackages.${system};
       modules = [
-        ./default.nix
+        ./16.0/default.nix
         {
           paths.projectRoot = ./.;
-          # can be changed to ".git" or "flake.nix" to get rid of .project-root
           paths.projectRootFile = "flake.nix";
-          paths.package = ./.;
+          paths.package = "16.0";
         }
       ];
-    });
-    # We use npm to get lessc, because the required version is not available in nixpkgs
-    odoo16_0_node_modules = (dream2nix.lib.evalModules {
-      packageSets.nixpkgs = pkgs;
-      modules = [
-        ./node.nix
-        {
-          paths.projectRoot = ./.;
-          # can be changed to ".git" or "flake.nix" to get rid of .project-root
-          paths.projectRootFile = "flake.nix";
-          paths.package = ./.;
-        }
-      ];
-    });
+    })
+    //
+    {
+      node_modules = (dream2nix.lib.evalModules {
+        packageSets.nixpkgs = pkgs;
+        modules = [
+          ./16.0/node.nix
+          {
+            paths.projectRoot = ./.;
+            paths.projectRootFile = "flake.nix";
+            paths.package = "16.0";
+          }
+        ];
+      });
+    };
     # Create a PATH with all the bin paths of the given packages/binPaths
     makeBinPath = pkgsWithBinPaths: with nixpkgs.lib;
       strings.concatStrings
@@ -61,11 +61,11 @@
             pkgsWithBinPaths));
     pkgsWithBinPaths = with pkgs; [
       {
-        pkg = odoo16_0.pyEnv;
+        pkg = v16_0.pyEnv;
         binPath = "bin";
       }
       {
-        pkg = odoo16_0_node_modules;
+        pkg = v16_0.node_modules;
         binPath = "lib/node_modules/.bin";
       }
       {
@@ -83,11 +83,14 @@
       }
     ];
   in {
-    packages.${system}.default = pkgs.writeShellScriptBin "python" ''
+    packages.${system}.v16_0 = v16_0
+    //
+    {
+      python = pkgs.writeShellScriptBin "python" ''
         export PATH="${makeBinPath pkgsWithBinPaths}:$PATH"
         export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
         python "$@"
       '';
-    lock = odoo16_0.lock;
+    };
   };
 }

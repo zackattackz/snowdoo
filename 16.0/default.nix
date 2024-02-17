@@ -21,7 +21,7 @@ in {
       ;
     inherit
       (nixpkgs-python-ldap-3_4_0.python39Packages)
-        ldap
+      ldap
       ;
     python = nixpkgs.python39;
   };
@@ -33,12 +33,10 @@ in {
     inherit src;
   };
 
-  nodejs-package-lock-v3.packageLockFile = ./package-lock.json;
-
   pip = {
     pypiSnapshotDate = "2024-01-01";
     requirementsFiles = [
-      "requirements.txt"
+      "16.0/requirements.txt"
     ];
 
     flattenDependencies = true;
