@@ -51,46 +51,55 @@
         ];
       });
     };
-    # Create a PATH with all the bin paths of the given packages/binPaths
-    makeBinPath = pkgsWithBinPaths: with nixpkgs.lib;
+    # Create a PATH string from all given binPaths
+    makeBinPath = binPaths: with nixpkgs.lib;
       strings.concatStrings
         (strings.intersperse
           ":"
           (map
             (x: "${x.pkg}/${x.binPath}")
-            pkgsWithBinPaths));
-    pkgsWithBinPaths = with pkgs; [
-      {
-        pkg = v16_0.pyEnv;
-        binPath = "bin";
-      }
-      {
-        pkg = v16_0.node_modules;
-        binPath = "lib/node_modules/.bin";
-      }
-      {
-        # TODO: Make our own derivation for this for 0.12.5
-        pkg = wkhtmltopdf-bin;
-        binPath = "bin";
-      }
-      {
-        pkg = rtlcss;
-        binPath = "bin";
-      }
-      {
-        pkg = xz;
-        binPath = "bin";
-      }
-    ];
+            binPaths));
+    versionToBinPaths = {
+      v16_0 = with pkgs; [
+        {
+          pkg = v16_0.pyEnv;
+          binPath = "bin";
+        }
+        {
+          pkg = v16_0.node_modules;
+          binPath = "lib/node_modules/.bin";
+        }
+        {
+          # TODO: Make our own derivation for this for 0.12.5
+          pkg = wkhtmltopdf-bin;
+          binPath = "bin";
+        }
+        {
+          pkg = rtlcss;
+          binPath = "bin";
+        }
+        {
+          pkg = xz;
+          binPath = "bin";
+        }
+      ];
+    };
+    makePython = binPath: pkgs.writeShellScriptBin "python" ''
+      export PATH="${binPath}:$PATH"
+      export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+      python "$@"
+    '';
   in {
-    packages.${system}.v16_0 = v16_0
-    //
+    packages.${system} =
     {
-      python = pkgs.writeShellScriptBin "python" ''
-        export PATH="${makeBinPath pkgsWithBinPaths}:$PATH"
-        export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-        python "$@"
-      '';
+      drvs = {
+        inherit v16_0;
+      };
+      pythons = with pkgs.lib;
+        (mapAttrs
+          (version: binPaths:
+            (makePython (makeBinPath binPaths)))
+          versionToBinPaths);
     };
   };
 }
