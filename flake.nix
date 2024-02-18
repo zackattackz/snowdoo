@@ -1,5 +1,5 @@
 {
-  description = "My flake with dream2nix packages";
+  description = "Flake providing python interpreters (with dependencies) for various odoo versions";
 
   inputs = {
     dream2nix.url = "github:nix-community/dream2nix";
