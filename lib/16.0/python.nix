@@ -8,7 +8,6 @@
 in {
   imports = [
     dream2nix.modules.dream2nix.pip
-    dream2nix.modules.dream2nix.nodejs-node-modules-v3
   ];
 
   deps = {nixpkgs, nixpkgs-python-ldap-3_4_0, ...}: {
