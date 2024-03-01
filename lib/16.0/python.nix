@@ -34,9 +34,7 @@ in {
 
   pip = {
     pypiSnapshotDate = "2024-01-01";
-    requirementsFiles = [
-      "16.0/requirements.txt"
-    ];
+    requirementsList = import ./python-requirements.nix;
 
     flattenDependencies = true;
 

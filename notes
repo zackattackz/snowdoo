@@ -1,0 +1,1 @@
+Put cacerts package in nixos module? Or otherwise somehow bundle it (using SSL_CERT_FILE env var)
